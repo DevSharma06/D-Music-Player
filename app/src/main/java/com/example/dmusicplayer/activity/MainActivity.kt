@@ -1,14 +1,15 @@
 package com.example.dmusicplayer.activity
 
-import android.net.Uri
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.MediaStore
+import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.dmusicplayer.R
 import com.example.dmusicplayer.SongsViewModel
 import com.example.dmusicplayer.model.SongInfo
@@ -28,6 +29,8 @@ class MainActivity : AppCompatActivity() {
     private val PERMISSION_REQUEST_CODE = 1878
     private val permissions = arrayOf<String>( android.Manifest.permission.READ_EXTERNAL_STORAGE)
 
+    private lateinit var mediaPlayer : MediaPlayer
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -35,6 +38,8 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(SongsViewModel::class.java)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
+
+        mediaPlayer = MediaPlayer()
 
         setRecyclerViewAdapter()
     }
@@ -56,12 +61,33 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onSongClicked(position: Int) {
+        binding.apply {
+            bottomBar.visibility = View.VISIBLE
+            Glide.with(this@MainActivity).load(songsList[position].albumArtPath).into(ivAlbumArt)
+            tvSongTitle.text = songsList[position].songTitle
+            tvArtistName.text = songsList[position].artist
 
+            playSong(position)
+        }
+    }
+
+    private fun playSong(position: Int) {
+        try {
+            mediaPlayer = MediaPlayer()
+            mediaPlayer.setDataSource(songsList[position].songURI)
+            mediaPlayer.prepareAsync()
+            mediaPlayer.setOnPreparedListener {
+                it.start()
+            }
+        } catch (e : Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun loadSongsFromStorage() {
         viewModel.loadSongs()
         viewModel.getSongs().observe(this, Observer {
+            songsList.addAll(it)
             songsAdapter.setList(it)
             songsAdapter.notifyDataSetChanged()
         })

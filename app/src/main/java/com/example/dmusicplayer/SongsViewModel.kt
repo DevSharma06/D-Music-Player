@@ -3,6 +3,7 @@ package com.example.dmusicplayer
 import android.app.Application
 import android.content.ContentUris
 import android.database.Cursor
+import android.net.Uri
 import android.provider.MediaStore
 import androidx.databinding.Bindable
 import androidx.databinding.Observable
@@ -43,6 +44,7 @@ class SongsViewModel(application: Application) : AndroidViewModel(application), 
                 val album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM))
                 val duration = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
                 val albumID = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID))
+                val songURI = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA))
 
                 var albumPath = ""
 
@@ -66,7 +68,7 @@ class SongsViewModel(application: Application) : AndroidViewModel(application), 
                     MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
                     albumID.toLong()
                 )
-                songs.add(SongInfo(title, artist, album, duration, albumPath, albumURI))
+                songs.add(SongInfo(title, artist, album, duration, albumPath, albumURI, songURI))
             }
             songsList.value = songs
         }

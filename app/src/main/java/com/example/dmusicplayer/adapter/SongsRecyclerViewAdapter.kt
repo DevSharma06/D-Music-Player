@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.dmusicplayer.R
 import com.example.dmusicplayer.databinding.SongsListItemBinding
 import com.example.dmusicplayer.model.SongInfo
@@ -24,7 +25,7 @@ class SongsRecyclerViewAdapter(private val clickListener: (Int) -> Unit)
     }
 
     override fun onBindViewHolder(holder: SongsViewHolder, position: Int) {
-        holder.bind(songsList[position], clickListener)
+        holder.bind(position, songsList[position], clickListener)
     }
 
     override fun getItemCount(): Int {
@@ -38,24 +39,27 @@ class SongsRecyclerViewAdapter(private val clickListener: (Int) -> Unit)
 
     class SongsViewHolder(private val binding: SongsListItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(song: SongInfo, clickListener: (Int) -> Unit) {
+        fun bind(position: Int, song: SongInfo, clickListener: (Int) -> Unit) {
             binding.apply {
                 tvSongName.text = song.songTitle
                 tvArtistName.text = song.artist
 
-                val mins = (song.duration.toLong() / 1000) / 60
+                val minutes = (song.duration.toLong() / 1000) / 60
                 val seconds = (song.duration.toLong() / 1000) % 60
-                tvDuration.text = "${mins}m ${seconds}s"
+                tvDuration.text = "${minutes}m ${seconds}s"
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 
                 } else {
                     if (song.albumArtPath.isNotEmpty()) {
-//                        val bitmap = BitmapFactory.decodeFile(song.albumArtPath)
-//                        ivAlbumIcon.setImageBitmap(bitmap)
-                        val image = Drawable.createFromPath(song.albumArtPath)
-                        ivAlbumIcon.setImageDrawable(image)
+                        Glide.with(ivAlbumIcon).load(song.albumArtPath).into(ivAlbumIcon)
+//                        val image = Drawable.createFromPath(song.albumArtPath)
+//                        ivAlbumIcon.setImageDrawable(image)
                     }
+                }
+
+                songLayout.setOnClickListener {
+                    clickListener(position)
                 }
             }
         }

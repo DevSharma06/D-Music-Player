@@ -8,5 +8,6 @@ data class SongInfo(
     var album: String,
     var duration: String,
     var albumArtPath : String,
-    var albumURI: Uri
+    var albumURI: Uri,
+    var songURI: String
 )
